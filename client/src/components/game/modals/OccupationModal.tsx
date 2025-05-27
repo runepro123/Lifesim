@@ -1,8 +1,10 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Briefcase, Tv, UserRoundCheck, Mic, Search, FileText, Shield, Clock } from "lucide-react";
+import { Briefcase, Tv, UserRoundCheck, Mic, Search, FileText, Shield, Clock, DollarSign, TrendingUp } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 import type { Character, Career } from "@shared/schema";
 
 interface OccupationModalProps {
@@ -12,8 +14,58 @@ interface OccupationModalProps {
 }
 
 export default function OccupationModal({ isOpen, onClose, character }: OccupationModalProps) {
+  const { toast } = useToast();
   const { data: careers = [] } = useQuery<Career[]>({
     queryKey: ['/api/careers'],
+  });
+
+  const jobMutation = useMutation({
+    mutationFn: async ({ action, career }: { action: string; career?: Career }) => {
+      if (action === 'apply' && career) {
+        const updates = {
+          currentJob: career.name,
+          salary: career.baseSalary,
+          workExperience: 0
+        };
+        return apiRequest('PATCH', `/api/characters/${character.id}`, updates);
+      } else if (action === 'work') {
+        const salaryBonus = Math.floor((character.salary || 50000) * 0.1);
+        const updates = {
+          bankBalance: character.bankBalance + salaryBonus,
+          workExperience: (character.workExperience || 0) + 1,
+          happiness: Math.max(0, Math.min(100, character.happiness + 5))
+        };
+        return apiRequest('PATCH', `/api/characters/${character.id}`, updates);
+      } else if (action === 'freelance') {
+        const payment = Math.floor(Math.random() * 1000) + 500;
+        const updates = {
+          bankBalance: character.bankBalance + payment,
+          happiness: Math.max(0, Math.min(100, character.happiness + 3))
+        };
+        return apiRequest('PATCH', `/api/characters/${character.id}`, updates);
+      }
+    },
+    onSuccess: (_, { action, career }) => {
+      if (action === 'apply') {
+        toast({
+          title: "Job Application Successful!",
+          description: `You are now working as a ${career?.name}.`,
+        });
+      } else if (action === 'work') {
+        toast({
+          title: "Work Complete!",
+          description: "You earned money and gained experience.",
+        });
+      } else if (action === 'freelance') {
+        toast({
+          title: "Freelance Gig Complete!",
+          description: "You earned some quick money.",
+        });
+      }
+      setTimeout(() => {
+        onClose();
+      }, 1000);
+    },
   });
 
   const getJobIcon = (jobName: string) => {
@@ -25,6 +77,7 @@ export default function OccupationModal({ isOpen, onClose, character }: Occupati
   };
 
   const canApplyForJob = (career: Career) => {
+    if (character.currentJob) return false; // Already has a job
     const meetsAge = character.age >= career.minAge;
     const requirements = career.requirements as Record<string, number> || {};
     
@@ -34,6 +87,10 @@ export default function OccupationModal({ isOpen, onClose, character }: Occupati
     });
 
     return meetsAge && meetsRequirements;
+  };
+
+  const handleJobAction = (action: string, career?: Career) => {
+    jobMutation.mutate({ action, career });
   };
 
   return (
@@ -65,17 +122,22 @@ export default function OccupationModal({ isOpen, onClose, character }: Occupati
           <div className="space-y-3">
             <h4 className="font-medium text-gray-700">Career Options</h4>
             
-            <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200">
+            <button 
+              className="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200 w-full hover:bg-gray-50 transition-colors"
+              onClick={() => handleJobAction('freelance')}
+              disabled={jobMutation.isPending}
+            >
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
                   <Mic className="text-green-600 w-5 h-5" />
                 </div>
-                <div>
+                <div className="text-left">
                   <div className="font-medium text-gray-900">Freelance Gigs</div>
                   <div className="text-sm text-gray-500">Make some quick money</div>
                 </div>
               </div>
-            </div>
+              <DollarSign className="text-green-600 w-4 h-4" />
+            </button>
 
             <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200">
               <div className="flex items-center space-x-3">
@@ -112,7 +174,14 @@ export default function OccupationModal({ isOpen, onClose, character }: Occupati
                       </div>
                     </div>
                     {eligible && (
-                      <Button variant="outline" size="sm">Apply</Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleJobAction('apply', career)}
+                        disabled={jobMutation.isPending}
+                      >
+                        Apply
+                      </Button>
                     )}
                   </div>
                 );

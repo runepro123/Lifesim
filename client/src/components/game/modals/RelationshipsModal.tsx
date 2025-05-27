@@ -1,8 +1,10 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Users, User, ChevronRight } from "lucide-react";
+import { Users, User, ChevronRight, Heart } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 import type { Character, Relationship } from "@shared/schema";
 
 interface RelationshipsModalProps {
@@ -12,10 +14,43 @@ interface RelationshipsModalProps {
 }
 
 export default function RelationshipsModal({ isOpen, onClose, character }: RelationshipsModalProps) {
+  const { toast } = useToast();
   const { data: relationships = [] } = useQuery<Relationship[]>({
     queryKey: [`/api/characters/${character.id}/relationships`],
     enabled: isOpen,
   });
+
+  const spendTimeMutation = useMutation({
+    mutationFn: async () => {
+      // Spend time with all family members - improves all relationships and happiness
+      const updates = {
+        happiness: Math.max(0, Math.min(100, character.happiness + 15)),
+        bankBalance: Math.max(0, character.bankBalance - 100) // Cost for activities
+      };
+      return apiRequest('PATCH', `/api/characters/${character.id}`, updates);
+    },
+    onSuccess: () => {
+      toast({
+        title: "Quality Family Time!",
+        description: "You spent time with your family. Everyone feels closer!",
+      });
+      setTimeout(() => {
+        onClose();
+      }, 1000);
+    },
+  });
+
+  const handleSpendTimeWithAll = () => {
+    if (character.bankBalance < 100) {
+      toast({
+        title: "Insufficient Funds",
+        description: "You need $100 to spend time with your family.",
+        variant: "destructive",
+      });
+      return;
+    }
+    spendTimeMutation.mutate();
+  };
 
   const groupedRelationships = relationships.reduce((acc, rel) => {
     if (!acc[rel.type]) acc[rel.type] = [];
@@ -91,9 +126,13 @@ export default function RelationshipsModal({ isOpen, onClose, character }: Relat
         </div>
 
         <div className="p-4 border-t border-gray-200">
-          <Button className="w-full bg-cyan-500 hover:bg-cyan-600 text-white">
-            <Users className="w-4 h-4 mr-2" />
-            Spend Time With All...
+          <Button 
+            className="w-full bg-cyan-500 hover:bg-cyan-600 text-white"
+            onClick={handleSpendTimeWithAll}
+            disabled={spendTimeMutation.isPending || character.bankBalance < 100}
+          >
+            <Heart className="w-4 h-4 mr-2" />
+            {character.bankBalance < 100 ? "Need $100 to Spend Time" : "Spend Time With Family ($100)"}
           </Button>
         </div>
       </DialogContent>
