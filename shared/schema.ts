@@ -2,8 +2,15 @@ import { pgTable, text, serial, integer, boolean, json } from "drizzle-orm/pg-co
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
+export const saveCodes = pgTable("save_codes", {
+  id: serial("id").primaryKey(),
+  code: text("code").notNull().unique(),
+  createdAt: integer("created_at").notNull(),
+});
+
 export const characters = pgTable("characters", {
   id: serial("id").primaryKey(),
+  saveCodeId: integer("save_code_id").references(() => saveCodes.id),
   name: text("name").notNull(),
   age: integer("age").notNull().default(0),
   gender: text("gender").notNull(),
@@ -59,6 +66,11 @@ export const relationships = pgTable("relationships", {
   isAlive: boolean("is_alive").notNull().default(true),
 });
 
+export const insertSaveCodeSchema = createInsertSchema(saveCodes).omit({
+  id: true,
+  createdAt: true,
+});
+
 export const insertCharacterSchema = createInsertSchema(characters).omit({
   id: true,
   createdAt: true,
@@ -76,6 +88,8 @@ export const insertRelationshipSchema = createInsertSchema(relationships).omit({
   id: true,
 });
 
+export type SaveCode = typeof saveCodes.$inferSelect;
+export type InsertSaveCode = z.infer<typeof insertSaveCodeSchema>;
 export type Character = typeof characters.$inferSelect;
 export type InsertCharacter = z.infer<typeof insertCharacterSchema>;
 export type Career = typeof careers.$inferSelect;
