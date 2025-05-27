@@ -39,6 +39,7 @@ export default function CharacterCreationModal({ isOpen, onClose, onCharacterCre
     mutationFn: (character: InsertCharacter) => apiRequest('POST', '/api/characters', character),
     onSuccess: async (response) => {
       const character = await response.json();
+      console.log('Character created with ID:', character.id);
       onCharacterCreated(character.id);
       resetForm();
     },

@@ -24,6 +24,7 @@ export default function MainMenu() {
   };
 
   const handleCharacterCreated = (characterId: number) => {
+    console.log('Navigating to game with character ID:', characterId);
     setShowCreationModal(false);
     setLocation(`/game?character=${characterId}`);
   };

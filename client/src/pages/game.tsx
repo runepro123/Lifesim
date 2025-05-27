@@ -19,16 +19,23 @@ export default function Game() {
   const [location, setLocation] = useLocation();
   const [currentCharacterId, setCurrentCharacterId] = useState<number | null>(null);
   const [activeModal, setActiveModal] = useState<string | null>(null);
+  const [loadingTimeout, setLoadingTimeout] = useState(false);
 
   // Extract character ID from URL parameters
   useEffect(() => {
+    console.log('Current location:', location);
+    
     // Handle both /game?character=123 and /game/123 formats
     const queryString = location.includes('?') ? location.split('?')[1] : '';
+    console.log('Query string:', queryString);
+    
     const urlParams = new URLSearchParams(queryString);
     const characterParam = urlParams.get('character');
+    console.log('Character param:', characterParam);
     
     if (characterParam) {
       const charId = parseInt(characterParam);
+      console.log('Parsed character ID:', charId);
       if (!isNaN(charId)) {
         setCurrentCharacterId(charId);
       }
