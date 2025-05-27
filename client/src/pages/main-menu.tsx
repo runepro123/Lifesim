@@ -238,6 +238,13 @@ export default function MainMenu() {
           onCharacterCreated={handleCharacterCreated}
         />
 
+        {/* Save Code Authentication Modal */}
+        <SaveCodeModal
+          isOpen={showSaveCodeModal}
+          onClose={() => setShowSaveCodeModal(false)}
+          onCodeAuthenticated={handleCodeAuthenticated}
+        />
+
         {/* Delete Confirmation Dialog */}
         <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
           <AlertDialogContent>
