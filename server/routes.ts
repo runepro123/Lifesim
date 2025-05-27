@@ -1,6 +1,6 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage";
+import { storage } from "./storage-new";
 import { insertCharacterSchema, insertSaveCodeSchema } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -166,6 +166,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const events = await storage.getLifeEventsByType(req.params.type);
       res.json(events);
+    } catch (error: any) {
+      res.status(400).json({ error: error.message });
+    }
+  });
+
+  // Save code routes
+  app.post("/api/save-codes", async (req, res) => {
+    try {
+      const { code } = req.body;
+      if (!code || typeof code !== 'string' || !/^\d{4}$/.test(code)) {
+        return res.status(400).json({ error: "Save code must be a 4-digit number" });
+      }
+      
+      const saveCode = await storage.createSaveCode(code);
+      res.json(saveCode);
+    } catch (error: any) {
+      res.status(400).json({ error: error.message });
+    }
+  });
+
+  app.get("/api/save-codes/:code", async (req, res) => {
+    try {
+      const saveCode = await storage.getSaveCode(req.params.code);
+      if (!saveCode) {
+        return res.status(404).json({ error: "Save code not found" });
+      }
+      res.json(saveCode);
+    } catch (error: any) {
+      res.status(400).json({ error: error.message });
+    }
+  });
+
+  app.get("/api/save-codes/:code/characters", async (req, res) => {
+    try {
+      const characters = await storage.getCharactersByCode(req.params.code);
+      res.json(characters);
     } catch (error: any) {
       res.status(400).json({ error: error.message });
     }

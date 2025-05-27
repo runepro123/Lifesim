@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,18 +9,32 @@ import { useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import CharacterCreationModal from "@/components/game/modals/CharacterCreationModal";
+import SaveCodeModal from "@/components/SaveCodeModal";
 import type { Character } from "@shared/schema";
 
 export default function MainMenu() {
   const [, setLocation] = useLocation();
   const [showCreationModal, setShowCreationModal] = useState(false);
+  const [showSaveCodeModal, setShowSaveCodeModal] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [characterToDelete, setCharacterToDelete] = useState<Character | null>(null);
+  const [currentSaveCode, setCurrentSaveCode] = useState<string | null>(null);
   const { toast } = useToast();
 
-  // Fetch all saved characters from the API
+  // Check for saved code in localStorage on mount
+  useEffect(() => {
+    const savedCode = localStorage.getItem('saveCode');
+    if (savedCode) {
+      setCurrentSaveCode(savedCode);
+    } else {
+      setShowSaveCodeModal(true);
+    }
+  }, []);
+
+  // Fetch characters for the current save code
   const { data: savedCharacters = [] } = useQuery<Character[]>({
-    queryKey: ['/api/characters'],
+    queryKey: ['/api/save-codes', currentSaveCode, 'characters'],
+    enabled: !!currentSaveCode,
   });
 
   // Delete character mutation
@@ -70,6 +84,19 @@ export default function MainMenu() {
     }
   };
 
+  const handleCodeAuthenticated = (code: string) => {
+    setCurrentSaveCode(code);
+    localStorage.setItem('saveCode', code);
+    // Invalidate and refetch characters for the new code
+    queryClient.invalidateQueries({ queryKey: ['/api/save-codes', code, 'characters'] });
+  };
+
+  const handleChangeSaveCode = () => {
+    localStorage.removeItem('saveCode');
+    setCurrentSaveCode(null);
+    setShowSaveCodeModal(true);
+  };
+
 
 
   return (
@@ -79,6 +106,21 @@ export default function MainMenu() {
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">My Life</h1>
           <p className="text-lg text-gray-600">Live your best virtual life</p>
+          {currentSaveCode && (
+            <div className="mt-4">
+              <Badge variant="outline" className="text-sm">
+                Save Code: {currentSaveCode}
+              </Badge>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={handleChangeSaveCode}
+                className="ml-2 text-xs"
+              >
+                Change Code
+              </Button>
+            </div>
+          )}
         </div>
 
         {/* Main Actions */}
