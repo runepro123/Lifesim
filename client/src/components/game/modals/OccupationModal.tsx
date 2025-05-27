@@ -36,6 +36,41 @@ export default function OccupationModal({ isOpen, onClose, character }: Occupati
           happiness: Math.max(0, Math.min(100, character.happiness + 5))
         };
         return apiRequest('PATCH', `/api/characters/${character.id}`, updates);
+      } else if (action === 'work-hard') {
+        const reputationGain = Math.floor(Math.random() * 15) + 10;
+        const updates = {
+          jobReputation: Math.min(100, (character.jobReputation || 0) + reputationGain),
+          happiness: Math.max(0, Math.min(100, character.happiness + 5))
+        };
+        return apiRequest('PATCH', `/api/characters/${character.id}`, updates);
+      } else if (action === 'ask-promotion') {
+        const reputation = character.jobReputation || 0;
+        const promotionChance = Math.min(0.8, reputation / 100);
+        const success = Math.random() < promotionChance;
+        
+        if (success) {
+          const salaryIncrease = Math.floor((character.salary || 50000) * 0.2);
+          const updates = {
+            salary: (character.salary || 50000) + salaryIncrease,
+            jobReputation: Math.max(0, reputation - 20),
+            happiness: Math.max(0, Math.min(100, character.happiness + 15))
+          };
+          return apiRequest('PATCH', `/api/characters/${character.id}`, updates);
+        } else {
+          const updates = {
+            jobReputation: Math.max(0, reputation - 10),
+            happiness: Math.max(0, Math.min(100, character.happiness - 5))
+          };
+          return apiRequest('PATCH', `/api/characters/${character.id}`, updates);
+        }
+      } else if (action === 'quit') {
+        const updates = {
+          currentJob: null,
+          salary: 0,
+          jobReputation: 0,
+          happiness: Math.max(0, Math.min(100, character.happiness + 10))
+        };
+        return apiRequest('PATCH', `/api/characters/${character.id}`, updates);
       } else if (action === 'freelance') {
         const payment = Math.floor(Math.random() * 1000) + 500;
         const updates = {
@@ -87,6 +122,32 @@ export default function OccupationModal({ isOpen, onClose, character }: Occupati
         toast({
           title: "Work Complete!",
           description: "You earned money and gained experience.",
+        });
+      } else if (action === 'work-hard') {
+        toast({
+          title: "Great Work!",
+          description: "Your hard work improved your reputation at the job.",
+        });
+      } else if (action === 'ask-promotion') {
+        const reputation = character.jobReputation || 0;
+        const promotionChance = Math.min(0.8, reputation / 100);
+        const success = Math.random() < promotionChance;
+        
+        if (success) {
+          toast({
+            title: "Promotion Approved!",
+            description: "Congratulations! You got a promotion and salary increase!",
+          });
+        } else {
+          toast({
+            title: "Promotion Denied",
+            description: "Your request was denied. Keep building your reputation and try again.",
+          });
+        }
+      } else if (action === 'quit') {
+        toast({
+          title: "Job Quit",
+          description: "You quit your job. You're now unemployed.",
         });
       } else if (action === 'freelance') {
         toast({
@@ -151,17 +212,51 @@ export default function OccupationModal({ isOpen, onClose, character }: Occupati
           {character.currentJob && (
             <div className="bg-gray-50 rounded-lg p-3 mb-4">
               <h4 className="font-medium text-gray-700 mb-2">Current Job</h4>
-              <div className="flex items-center justify-between p-3 bg-white rounded-lg">
+              <div className="bg-white rounded-lg p-3 space-y-3">
                 <div className="flex items-center space-x-3">
                   <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
                     <Tv className="text-blue-600 w-5 h-5" />
                   </div>
-                  <div>
+                  <div className="flex-1">
                     <div className="font-medium text-gray-900">{character.currentJob}</div>
-                    <div className="text-sm text-gray-500">Reputation</div>
-                    <Progress value={character.jobReputation || 0} className="w-24 h-2 mt-1" />
+                    <div className="text-sm text-gray-500">Salary: ${(character.salary || 0).toLocaleString()}/year</div>
+                    <div className="text-sm text-gray-500">Reputation: {character.jobReputation || 0}/100</div>
+                    <Progress value={character.jobReputation || 0} className="w-32 h-2 mt-1" />
                   </div>
                 </div>
+                <div className="flex space-x-2">
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    onClick={() => handleJobAction('work-hard')}
+                    disabled={jobMutation.isPending}
+                    className="flex-1"
+                  >
+                    Work Hard (+Rep)
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    onClick={() => handleJobAction('ask-promotion')}
+                    disabled={jobMutation.isPending || (character.jobReputation || 0) < 50}
+                    className="flex-1"
+                  >
+                    Ask Promotion
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    variant="destructive"
+                    onClick={() => handleJobAction('quit')}
+                    disabled={jobMutation.isPending}
+                  >
+                    Quit
+                  </Button>
+                </div>
+                {(character.jobReputation || 0) < 50 && (
+                  <div className="text-xs text-gray-500">
+                    Build reputation to 50+ for promotion eligibility
+                  </div>
+                )}
               </div>
             </div>
           )}
