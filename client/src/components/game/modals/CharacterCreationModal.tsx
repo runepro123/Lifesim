@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -124,6 +124,9 @@ export default function CharacterCreationModal({ isOpen, onClose, onCharacterCre
       <DialogContent className="max-w-md max-h-[90vh] overflow-hidden p-0">
         <DialogHeader className="p-6 border-b border-gray-200">
           <DialogTitle className="text-xl font-semibold text-gray-900 text-center">Create New Life</DialogTitle>
+          <DialogDescription className="text-center text-gray-600 mt-2">
+            Create your character and begin your life simulation journey.
+          </DialogDescription>
         </DialogHeader>
         
         <div className="overflow-y-auto max-h-[calc(90vh-200px)] p-6">
