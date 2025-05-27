@@ -8,6 +8,8 @@ interface GameHeaderProps {
 }
 
 export default function GameHeader({ character }: GameHeaderProps) {
+  const [, setLocation] = useLocation();
+  
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-GB', { 
       style: 'currency', 
@@ -17,11 +19,23 @@ export default function GameHeader({ character }: GameHeaderProps) {
     }).format(amount);
   };
 
+  const handleBackToMenu = () => {
+    setLocation('/');
+  };
+
   return (
     <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
       <div className="max-w-md mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={handleBackToMenu}
+              className="p-2"
+            >
+              <Home className="w-4 h-4" />
+            </Button>
             <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
               <i className="fas fa-user text-white text-lg"></i>
             </div>
