@@ -25,12 +25,9 @@ export default function Game() {
   useEffect(() => {
     console.log('Current location:', location);
     
-    // Handle both /game?character=123 and /game/123 formats
-    const queryString = location.includes('?') ? location.split('?')[1] : '';
-    console.log('Query string:', queryString);
-    
-    const urlParams = new URLSearchParams(queryString);
-    const characterParam = urlParams.get('character');
+    // Parse URL parameters properly
+    const url = new URL(window.location.href);
+    const characterParam = url.searchParams.get('character');
     console.log('Character param:', characterParam);
     
     if (characterParam) {
