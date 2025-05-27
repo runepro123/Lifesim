@@ -282,7 +282,7 @@ export class DatabaseStorage implements IStorage {
   async createSaveCode(code: string): Promise<SaveCode> {
     const [saveCode] = await db
       .insert(saveCodes)
-      .values({ code, createdAt: Date.now() })
+      .values({ code, createdAt: Math.floor(Date.now() / 1000) })
       .returning();
     return saveCode;
   }
@@ -311,7 +311,7 @@ export class DatabaseStorage implements IStorage {
   async createCharacter(insertCharacter: InsertCharacter): Promise<Character> {
     const [character] = await db
       .insert(characters)
-      .values({ ...insertCharacter, createdAt: Date.now() })
+      .values({ ...insertCharacter, createdAt: Math.floor(Date.now() / 1000) })
       .returning();
     return character;
   }
