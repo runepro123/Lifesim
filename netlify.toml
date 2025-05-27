@@ -1,15 +1,10 @@
 [build]
-  publish = "dist"
+  publish = "dist/public"
   command = "npm run build"
 
 [build.environment]
   NODE_VERSION = "20"
   DATABASE_URL = "postgresql://neondb_owner:npg_9nXlEqferJp3@ep-raspy-poetry-a8r13muz-pooler.eastus2.azure.neon.tech/neondb?sslmode=require"
-
-[[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/api/:splat"
-  status = 200
 
 [[redirects]]
   from = "/*"
