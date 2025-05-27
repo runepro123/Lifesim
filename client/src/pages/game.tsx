@@ -22,8 +22,11 @@ export default function Game() {
 
   // Extract character ID from URL parameters
   useEffect(() => {
-    const urlParams = new URLSearchParams(location.split('?')[1] || '');
+    // Handle both /game?character=123 and /game/123 formats
+    const queryString = location.includes('?') ? location.split('?')[1] : '';
+    const urlParams = new URLSearchParams(queryString);
     const characterParam = urlParams.get('character');
+    
     if (characterParam) {
       const charId = parseInt(characterParam);
       if (!isNaN(charId)) {
