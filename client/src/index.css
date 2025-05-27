@@ -1,0 +1,187 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 210 11% 98%; /* #F5F7FA */
+  --foreground: 220 13% 9%; /* #1F2937 */
+  --muted: 210 11% 96%; /* #F3F4F6 */
+  --muted-foreground: 215 16% 47%; /* #6B7280 */
+  --popover: 0 0% 100%; /* #FFFFFF */
+  --popover-foreground: 220 13% 9%; /* #1F2937 */
+  --card: 0 0% 100%; /* #FFFFFF */
+  --card-foreground: 220 13% 9%; /* #1F2937 */
+  --border: 220 13% 91%; /* #E5E7EB */
+  --input: 220 13% 91%; /* #E5E7EB */
+  --primary: 217 91% 60%; /* #3B82F6 */
+  --primary-foreground: 0 0% 100%; /* #FFFFFF */
+  --secondary: 210 40% 98%; /* #F8FAFC */
+  --secondary-foreground: 222 84% 5%; /* #0F172A */
+  --accent: 210 40% 98%; /* #F8FAFC */
+  --accent-foreground: 222 84% 5%; /* #0F172A */
+  --destructive: 0 84% 60%; /* #EF4444 */
+  --destructive-foreground: 0 0% 100%; /* #FFFFFF */
+  --ring: 217 91% 60%; /* #3B82F6 */
+  --radius: 0.5rem;
+
+  /* Custom colors for life sim */
+  --green-100: 142 76% 94%; /* #DCFCE7 */
+  --green-500: 142 76% 36%; /* #22C55E */
+  --green-600: 142 72% 29%; /* #16A34A */
+  --red-100: 0 93% 94%; /* #FEE2E2 */
+  --red-500: 0 84% 60%; /* #EF4444 */
+  --red-600: 0 84% 50%; /* #DC2626 */
+  --blue-100: 214 95% 93%; /* #DBEAFE */
+  --blue-500: 217 91% 60%; /* #3B82F6 */
+  --blue-600: 221 83% 53%; /* #2563EB */
+  --yellow-100: 48 100% 88%; /* #FEF3C7 */
+  --yellow-500: 45 93% 47%; /* #EAB308 */
+  --yellow-600: 32 95% 44%; /* #D97706 */
+  --orange-100: 34 100% 92%; /* #FED7AA */
+  --orange-600: 20 91% 48%; /* #EA580C */
+  --purple-100: 270 100% 98%; /* #F3E8FF */
+  --purple-600: 271 91% 65%; /* #9333EA */
+  --pink-100: 326 78% 95%; /* #FCE7F3 */
+  --pink-600: 322 81% 57%; /* #DB2777 */
+  --cyan-500: 189 94% 43%; /* #06B6D4 */
+  --cyan-600: 188 86% 53%; /* #0891B2 */
+  --gray-800: 215 28% 17%; /* #374151 */
+}
+
+.dark {
+  --background: 224 71% 4%; /* #0F1419 */
+  --foreground: 213 31% 91%; /* #E4E4E7 */
+  --muted: 223 47% 11%; /* #27272A */
+  --muted-foreground: 215 20% 65%; /* #A1A1AA */
+  --popover: 224 71% 4%; /* #0F1419 */
+  --popover-foreground: 213 31% 91%; /* #E4E4E7 */
+  --card: 224 71% 4%; /* #0F1419 */
+  --card-foreground: 213 31% 91%; /* #E4E4E7 */
+  --border: 216 34% 17%; /* #27272A */
+  --input: 216 34% 17%; /* #27272A */
+  --primary: 217 91% 60%; /* #3B82F6 */
+  --primary-foreground: 222 84% 5%; /* #0F172A */
+  --secondary: 222 84% 5%; /* #0F172A */
+  --secondary-foreground: 213 31% 91%; /* #E4E4E7 */
+  --accent: 216 34% 17%; /* #27272A */
+  --accent-foreground: 213 31% 91%; /* #E4E4E7 */
+  --destructive: 0 63% 31%; /* #7F1D1D */
+  --destructive-foreground: 213 31% 91%; /* #E4E4E7 */
+  --ring: 217 91% 60%; /* #3B82F6 */
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+
+  /* Ensure FontAwesome icons display properly */
+  .fas, .far, .fab {
+    font-family: "Font Awesome 6 Free", "Font Awesome 6 Brands" !important;
+  }
+
+  /* Custom progress bar styling for game stats */
+  .progress-bar {
+    @apply w-full bg-gray-200 rounded-full h-2;
+  }
+
+  .progress-fill {
+    @apply h-2 rounded-full transition-all duration-300;
+  }
+
+  /* Mobile-first responsive design */
+  .game-container {
+    @apply max-w-md mx-auto;
+  }
+
+  /* Modal animations */
+  .modal-overlay {
+    @apply fixed inset-0 bg-black bg-opacity-50 z-50;
+  }
+
+  .modal-content {
+    @apply bg-white rounded-t-2xl w-full max-w-md max-h-[80vh] overflow-hidden;
+  }
+
+  /* Button hover effects */
+  .nav-button {
+    @apply flex-1 py-3 px-1 text-center transition-colors duration-200;
+  }
+
+  .nav-button:hover {
+    @apply bg-gray-50;
+  }
+
+  .nav-button.active {
+    @apply border-t-2;
+  }
+
+  /* Stat icons styling */
+  .stat-icon {
+    @apply w-12 h-12 mx-auto mb-2 rounded-full flex items-center justify-center;
+  }
+
+  /* Life events styling */
+  .life-event {
+    @apply bg-white rounded-lg p-3 border border-gray-100 shadow-sm;
+  }
+
+  /* Relationship status colors */
+  .relationship-excellent {
+    @apply text-green-600 bg-green-100;
+  }
+
+  .relationship-good {
+    @apply text-blue-600 bg-blue-100;
+  }
+
+  .relationship-neutral {
+    @apply text-yellow-600 bg-yellow-100;
+  }
+
+  .relationship-poor {
+    @apply text-orange-600 bg-orange-100;
+  }
+
+  .relationship-bad {
+    @apply text-red-600 bg-red-100;
+  }
+}
+
+/* FontAwesome CDN integration - these classes ensure proper icon display */
+.fa-user::before { content: "\f007"; }
+.fa-smile::before { content: "\f118"; }
+.fa-heart::before { content: "\f004"; }
+.fa-brain::before { content: "\f5dc"; }
+.fa-eye::before { content: "\f06e"; }
+.fa-star::before { content: "\f005"; }
+.fa-briefcase::before { content: "\f0b1"; }
+.fa-coins::before { content: "\f51e"; }
+.fa-plus::before { content: "\002b"; }
+.fa-gamepad::before { content: "\f11b"; }
+.fa-times::before { content: "\f00d"; }
+.fa-tv::before { content: "\f26c"; }
+.fa-male::before { content: "\f183"; }
+.fa-female::before { content: "\f182"; }
+.fa-child::before { content: "\f1ae"; }
+.fa-birthday-cake::before { content: "\f1fd"; }
+.fa-dice::before { content: "\f522"; }
+.fa-chevron-right::before { content: "\f054"; }
+.fa-ellipsis-h::before { content: "\f141"; }
+.fa-dollar-sign::before { content: "\f155"; }
+.fa-chart-line::before { content: "\f201"; }
+.fa-gem::before { content: "\f3a5"; }
+.fa-car::before { content: "\f1b9"; }
+.fa-users::before { content: "\f0c0"; }
+.fa-microphone::before { content: "\f130"; }
+.fa-search::before { content: "\f002"; }
+.fa-list::before { content: "\f03a"; }
+.fa-shield::before { content: "\f132"; }
+.fa-clock::before { content: "\f017"; }
+.fa-paw::before { content: "\f1b0"; }
+.fa-mask::before { content: "\f6fa"; }
