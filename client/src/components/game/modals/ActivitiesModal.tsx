@@ -38,9 +38,10 @@ export default function ActivitiesModal({ isOpen, onClose, character }: Activiti
         title: "Activity Completed!",
         description: "Your stats have been updated.",
       });
-      onClose();
-      // Trigger a refetch of character data
-      window.location.reload();
+      setCurrentView("main");
+      setTimeout(() => {
+        onClose();
+      }, 1000);
     },
   });
 

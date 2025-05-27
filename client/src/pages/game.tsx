@@ -29,6 +29,10 @@ export default function Game() {
 
   const closeModal = () => {
     setActiveModal(null);
+    // Refetch character data when modal closes to show updated stats
+    if (currentCharacterId) {
+      refetch();
+    }
   };
 
   const handleCharacterCreated = (characterId: number) => {

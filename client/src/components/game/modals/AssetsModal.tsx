@@ -29,8 +29,10 @@ export default function AssetsModal({ isOpen, onClose, character }: AssetsModalP
         title: "Purchase Successful!",
         description: "Your new asset has been added to your collection.",
       });
-      onClose();
-      window.location.reload();
+      setCurrentView("main");
+      setTimeout(() => {
+        onClose();
+      }, 1000);
     },
   });
 
