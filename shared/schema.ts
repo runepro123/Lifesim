@@ -5,7 +5,6 @@ import { z } from "zod";
 export const saveCodes = pgTable("save_codes", {
   id: serial("id").primaryKey(),
   code: text("code").notNull().unique(),
-  createdAt: integer("created_at").notNull(),
 });
 
 export const characters = pgTable("characters", {
@@ -68,7 +67,6 @@ export const relationships = pgTable("relationships", {
 
 export const insertSaveCodeSchema = createInsertSchema(saveCodes).omit({
   id: true,
-  createdAt: true,
 });
 
 export const insertCharacterSchema = createInsertSchema(characters).omit({

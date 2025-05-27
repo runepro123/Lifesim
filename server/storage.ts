@@ -282,7 +282,7 @@ export class DatabaseStorage implements IStorage {
   async createSaveCode(code: string): Promise<SaveCode> {
     const [saveCode] = await db
       .insert(saveCodes)
-      .values({ code, createdAt: Math.floor(Date.now() / 1000) })
+      .values({ code })
       .returning();
     return saveCode;
   }
