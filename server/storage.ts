@@ -3,6 +3,7 @@ import {
   careers, 
   lifeEvents, 
   relationships,
+  saveCodes,
   type Character, 
   type InsertCharacter,
   type Career,
@@ -10,7 +11,8 @@ import {
   type LifeEvent,
   type InsertLifeEvent,
   type Relationship,
-  type InsertRelationship
+  type InsertRelationship,
+  type SaveCode
 } from "@shared/schema";
 
 export interface IStorage {
@@ -399,6 +401,5 @@ export class DatabaseStorage implements IStorage {
   }
 }
 
-// Use the working database storage implementation
-import { storage as workingStorage } from './storage-new';
-export const storage = workingStorage;
+// Use the database storage implementation
+export const storage = new DatabaseStorage();
