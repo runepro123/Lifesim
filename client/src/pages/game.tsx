@@ -62,15 +62,26 @@ export default function Game() {
     closeModal();
   };
 
-  // Redirect to main menu if no character ID is provided
+  // Redirect to main menu if no character ID is provided (but give time for URL parsing)
   useEffect(() => {
-    if (location === '/game' && !currentCharacterId) {
-      setLocation('/');
-    }
+    const timer = setTimeout(() => {
+      if (location.startsWith('/game') && !currentCharacterId) {
+        setLocation('/');
+      }
+    }, 100); // Small delay to allow URL parsing to complete
+    
+    return () => clearTimeout(timer);
   }, [location, currentCharacterId, setLocation]);
 
   if (!currentCharacterId) {
-    return null; // Will redirect via useEffect
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading your character...</p>
+        </div>
+      </div>
+    );
   }
 
   if (isLoading || !character) {
