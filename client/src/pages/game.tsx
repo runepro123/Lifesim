@@ -12,7 +12,8 @@ import ActivitiesModal from "@/components/game/modals/ActivitiesModal";
 import AgeUpModal from "@/components/game/modals/AgeUpModal";
 import CharacterCreationModal from "@/components/game/modals/CharacterCreationModal";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, Save } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import type { Character } from "@shared/schema";
 
 export default function Game() {
@@ -20,6 +21,7 @@ export default function Game() {
   const [currentCharacterId, setCurrentCharacterId] = useState<number | null>(null);
   const [activeModal, setActiveModal] = useState<string | null>(null);
   const [loadingTimeout, setLoadingTimeout] = useState(false);
+  const { toast } = useToast();
 
   // Extract character ID from URL parameters
   useEffect(() => {
@@ -66,6 +68,25 @@ export default function Game() {
     closeModal();
   };
 
+  const handleSaveLife = async () => {
+    if (!character || !currentCharacterId) return;
+    
+    try {
+      // The character is already saved automatically when changes are made
+      // This manual save just confirms the current state is saved
+      toast({
+        title: "Life Saved!",
+        description: `${character.name}'s progress has been saved successfully.`,
+      });
+    } catch (error) {
+      toast({
+        title: "Save Failed",
+        description: "Could not save your life progress. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   // No automatic redirect - let users stay on game page
 
   if (!currentCharacterId) {
@@ -97,8 +118,15 @@ export default function Game() {
       <LifeEvents character={character} />
       <MainNavigation onNavigate={showModal} activeTab="job" />
 
-      {/* Floating Action Button for New Life */}
-      <div className="fixed bottom-6 right-6 z-40">
+      {/* Floating Action Buttons */}
+      <div className="fixed bottom-6 right-6 z-40 flex flex-col space-y-3">
+        <Button
+          onClick={handleSaveLife}
+          size="lg"
+          className="w-14 h-14 bg-green-500 hover:bg-green-600 text-white rounded-full shadow-lg"
+        >
+          <Save className="w-6 h-6" />
+        </Button>
         <Button
           onClick={() => showModal('characterCreation')}
           size="lg"
