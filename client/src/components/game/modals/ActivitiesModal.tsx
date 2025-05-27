@@ -208,11 +208,11 @@ export default function ActivitiesModal({ isOpen, onClose, character }: Activiti
                   </div>
                 </div>
                 <div className="flex space-x-2">
-                  {!character.youtubeFollowers ? (
+                  {character.youtubeFollowers === undefined ? (
                     <Button 
                       size="sm" 
                       variant="outline"
-                      onClick={() => performActivity("Sign up for YouTube", { youtubeFollowers: 0 })}
+                      onClick={() => performActivity("Sign up for YouTube", { youtubeFollowers: 1 })}
                       disabled={character.age < 13 || activityMutation.isPending}
                     >
                       Sign Up
@@ -253,11 +253,11 @@ export default function ActivitiesModal({ isOpen, onClose, character }: Activiti
                   </div>
                 </div>
                 <div className="flex space-x-2">
-                  {!character.tiktokFollowers ? (
+                  {character.tiktokFollowers === undefined ? (
                     <Button 
                       size="sm" 
                       variant="outline"
-                      onClick={() => performActivity("Sign up for TikTok", { tiktokFollowers: 0 })}
+                      onClick={() => performActivity("Sign up for TikTok", { tiktokFollowers: 1 })}
                       disabled={character.age < 13 || activityMutation.isPending}
                     >
                       Sign Up
