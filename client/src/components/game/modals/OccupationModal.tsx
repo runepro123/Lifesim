@@ -43,6 +43,38 @@ export default function OccupationModal({ isOpen, onClose, character }: Occupati
           happiness: Math.max(0, Math.min(100, character.happiness + 3))
         };
         return apiRequest('PATCH', `/api/characters/${character.id}`, updates);
+      } else if (action === 'military') {
+        const militaryJobs = ['Army Soldier', 'Navy Sailor', 'Air Force Pilot', 'Marines Infantry'];
+        const randomJob = militaryJobs[Math.floor(Math.random() * militaryJobs.length)];
+        const updates = {
+          currentJob: randomJob,
+          salary: 35000 + Math.floor(Math.random() * 20000),
+          workExperience: 0,
+          health: Math.max(0, Math.min(100, character.health + 15)),
+          happiness: Math.max(0, Math.min(100, character.happiness - 5))
+        };
+        return apiRequest('PATCH', `/api/characters/${character.id}`, updates);
+      } else if (action === 'part-time') {
+        const partTimeJobs = ['Cashier', 'Waiter', 'Delivery Driver', 'Store Associate', 'Coffee Barista'];
+        const randomJob = partTimeJobs[Math.floor(Math.random() * partTimeJobs.length)];
+        const updates = {
+          currentJob: `Part-time ${randomJob}`,
+          salary: 15000 + Math.floor(Math.random() * 10000),
+          workExperience: 0,
+          happiness: Math.max(0, Math.min(100, character.happiness + 3))
+        };
+        return apiRequest('PATCH', `/api/characters/${character.id}`, updates);
+      } else if (action === 'recruiter') {
+        // Job recruiter finds high-paying jobs
+        const recruiterJobs = ['Marketing Manager', 'Sales Director', 'Project Manager', 'Business Analyst'];
+        const randomJob = recruiterJobs[Math.floor(Math.random() * recruiterJobs.length)];
+        const updates = {
+          currentJob: randomJob,
+          salary: 60000 + Math.floor(Math.random() * 40000),
+          workExperience: 0,
+          happiness: Math.max(0, Math.min(100, character.happiness + 10))
+        };
+        return apiRequest('PATCH', `/api/characters/${character.id}`, updates);
       }
     },
     onSuccess: (_, { action, career }) => {
@@ -60,6 +92,21 @@ export default function OccupationModal({ isOpen, onClose, character }: Occupati
         toast({
           title: "Freelance Gig Complete!",
           description: "You earned some quick money.",
+        });
+      } else if (action === 'military') {
+        toast({
+          title: "Military Enlistment Successful!",
+          description: "You've joined the military and got a job!",
+        });
+      } else if (action === 'part-time') {
+        toast({
+          title: "Part-time Job Found!",
+          description: "You got a part-time job to earn some income.",
+        });
+      } else if (action === 'recruiter') {
+        toast({
+          title: "Job Recruiter Success!",
+          description: "The recruiter found you a great position!",
         });
       }
       setTimeout(() => {
@@ -139,17 +186,24 @@ export default function OccupationModal({ isOpen, onClose, character }: Occupati
               <DollarSign className="text-green-600 w-4 h-4" />
             </button>
 
-            <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200">
+            <button 
+              className="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200 w-full hover:bg-gray-50 transition-colors"
+              onClick={() => handleJobAction('recruiter')}
+              disabled={character.currentJob || character.age < 21 || jobMutation.isPending}
+            >
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
                   <Search className="text-blue-600 w-5 h-5" />
                 </div>
-                <div>
+                <div className="text-left">
                   <div className="font-medium text-gray-900">Job Recruiter</div>
                   <div className="text-sm text-gray-500">Visit the job recruiter</div>
+                  {character.age < 21 && <div className="text-xs text-red-500">Must be 21+</div>}
+                  {character.currentJob && <div className="text-xs text-red-500">Already employed</div>}
                 </div>
               </div>
-            </div>
+              <Search className="text-blue-600 w-4 h-4" />
+            </button>
 
             <div className="space-y-2 mt-4">
               <h5 className="font-medium text-gray-700">Available Jobs</h5>
@@ -188,29 +242,43 @@ export default function OccupationModal({ isOpen, onClose, character }: Occupati
               })}
             </div>
 
-            <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200">
+            <button 
+              className="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200 w-full hover:bg-gray-50 transition-colors"
+              onClick={() => handleJobAction('military')}
+              disabled={character.currentJob || character.age < 18 || jobMutation.isPending}
+            >
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
                   <Shield className="text-red-600 w-5 h-5" />
                 </div>
-                <div>
+                <div className="text-left">
                   <div className="font-medium text-gray-900">Military</div>
                   <div className="text-sm text-gray-500">Join the military</div>
+                  {character.age < 18 && <div className="text-xs text-red-500">Must be 18+</div>}
+                  {character.currentJob && <div className="text-xs text-red-500">Already employed</div>}
                 </div>
               </div>
-            </div>
+              <Shield className="text-red-600 w-4 h-4" />
+            </button>
 
-            <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200">
+            <button 
+              className="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200 w-full hover:bg-gray-50 transition-colors"
+              onClick={() => handleJobAction('part-time')}
+              disabled={character.currentJob || character.age < 16 || jobMutation.isPending}
+            >
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
                   <Clock className="text-purple-600 w-5 h-5" />
                 </div>
-                <div>
+                <div className="text-left">
                   <div className="font-medium text-gray-900">Part-Time Jobs</div>
                   <div className="text-sm text-gray-500">Browse hourly job listings</div>
+                  {character.age < 16 && <div className="text-xs text-red-500">Must be 16+</div>}
+                  {character.currentJob && <div className="text-xs text-red-500">Already employed</div>}
                 </div>
               </div>
-            </div>
+              <Clock className="text-purple-600 w-4 h-4" />
+            </button>
           </div>
         </div>
       </DialogContent>

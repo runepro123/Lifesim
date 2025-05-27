@@ -73,6 +73,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         looks: newAge > 40 ? -0.5 : 0,
       };
 
+      // Calculate salary payment if employed
+      let salaryPayment = 0;
+      if (character.currentJob && character.salary) {
+        salaryPayment = character.salary;
+      }
+
       // Calculate new stats
       const updatedCharacter = await storage.updateCharacter(id, {
         age: newAge,
@@ -82,6 +88,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         smarts: Math.max(0, Math.min(100, character.smarts + (statChanges.smarts || 0))),
         looks: Math.max(0, Math.min(100, character.looks + (statChanges.looks || 0) + ageingEffects.looks)),
         fame: Math.max(0, Math.min(100, character.fame + (statChanges.fame || 0))),
+        bankBalance: character.bankBalance + salaryPayment,
+        workExperience: character.currentJob ? (character.workExperience || 0) + 1 : character.workExperience,
       });
 
       res.json({ character: updatedCharacter, lifeEvent });

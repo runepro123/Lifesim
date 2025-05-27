@@ -225,7 +225,7 @@ export default function CharacterCreationModal({ isOpen, onClose, onCharacterCre
             <Button 
               className="flex-1 bg-blue-500 hover:bg-blue-600" 
               onClick={handleStartLife}
-              disabled={!name || !gender || !country || createCharacterMutation.isPending}
+              disabled={!name || !gender || !country || !talent || createCharacterMutation.isPending}
             >
               {createCharacterMutation.isPending ? 'Creating...' : 'Start Life'}
             </Button>

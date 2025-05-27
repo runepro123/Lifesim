@@ -28,7 +28,13 @@ export default function ActivitiesModal({ isOpen, onClose, character }: Activiti
         smarts: Math.max(0, Math.min(100, character.smarts + (effect.smarts || 0))),
         looks: Math.max(0, Math.min(100, character.looks + (effect.looks || 0))),
         fame: Math.max(0, Math.min(100, character.fame + (effect.fame || 0))),
-        bankBalance: Math.max(0, character.bankBalance + (effect.money || 0))
+        bankBalance: Math.max(0, character.bankBalance + (effect.money || 0)),
+        ...(effect.youtubeFollowers !== undefined && { 
+          youtubeFollowers: Math.max(0, (character.youtubeFollowers || 0) + effect.youtubeFollowers) 
+        }),
+        ...(effect.tiktokFollowers !== undefined && { 
+          tiktokFollowers: Math.max(0, (character.tiktokFollowers || 0) + effect.tiktokFollowers) 
+        })
       };
       
       return apiRequest('PATCH', `/api/characters/${character.id}`, updatedStats);
