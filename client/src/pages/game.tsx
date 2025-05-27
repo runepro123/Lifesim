@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import GameHeader from "@/components/game/GameHeader";
 import StatsDisplay from "@/components/game/StatsDisplay";
 import LifeEvents from "@/components/game/LifeEvents";
@@ -15,7 +16,17 @@ import { Plus } from "lucide-react";
 import type { Character } from "@shared/schema";
 
 export default function Game() {
+  const [location] = useLocation();
   const [currentCharacterId, setCurrentCharacterId] = useState<number | null>(null);
+
+  // Extract character ID from URL parameters
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.split('?')[1] || '');
+    const characterParam = urlParams.get('character');
+    if (characterParam) {
+      setCurrentCharacterId(parseInt(characterParam));
+    }
+  }, [location]);
   const [activeModal, setActiveModal] = useState<string | null>(null);
 
   const { data: character, isLoading, refetch } = useQuery<Character>({
