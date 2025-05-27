@@ -69,35 +69,43 @@ export default function CharacterCreationModal({ isOpen, onClose, onCharacterCre
     });
   };
 
-  const handleStartLife = () => {
+  const handleStartLife = async () => {
     if (!name || !gender || !country || !talent || !saveCode) return;
 
-    const character: InsertCharacter = {
-      name,
-      gender,
-      country,
-      talent,
-      age: 0,
-      saveCode: saveCode,  // Link to the save code directly
-      bankBalance: Math.floor(Math.random() * 5000) + 1000, // Random starting money
-      happiness: stats.happiness,
-      health: stats.health,
-      smarts: stats.smarts,
-      looks: stats.looks,
-      fame: talent === "famous" ? 10 : 0, // Famous talent starts with some fame
-      currentJob: null,
-      jobReputation: 0,
-      salary: 0,
-      workExperience: 0,
-      youtubeFollowers: 0,
-      tiktokFollowers: 0,
-      isAlive: true,
-      relationships: {},
-      assets: {},
-      lifeEvents: [],
-    };
+    // First get the save code ID from the database
+    try {
+      const saveCodeResponse = await apiRequest('GET', `/api/save-codes/${saveCode}`);
+      const saveCodeData = await saveCodeResponse.json();
+      
+      const character: InsertCharacter = {
+        name,
+        gender,
+        country,
+        talent,
+        age: 0,
+        saveCodeId: saveCodeData.id,  // Link to the save code ID
+        bankBalance: Math.floor(Math.random() * 5000) + 1000, // Random starting money
+        happiness: stats.happiness,
+        health: stats.health,
+        smarts: stats.smarts,
+        looks: stats.looks,
+        fame: talent === "famous" ? 10 : 0, // Famous talent starts with some fame
+        currentJob: null,
+        jobReputation: 0,
+        salary: 0,
+        workExperience: 0,
+        youtubeFollowers: 0,
+        tiktokFollowers: 0,
+        isAlive: true,
+        relationships: {},
+        assets: {},
+        lifeEvents: [],
+      };
 
-    createCharacterMutation.mutate(character);
+      createCharacterMutation.mutate(character);
+    } catch (error) {
+      console.error('Error creating character:', error);
+    }
   };
 
   const countries = [
