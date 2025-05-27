@@ -62,16 +62,7 @@ export default function Game() {
     closeModal();
   };
 
-  // Redirect to main menu if no character ID is provided (but give time for URL parsing)
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (location.startsWith('/game') && !currentCharacterId) {
-        setLocation('/');
-      }
-    }, 100); // Small delay to allow URL parsing to complete
-    
-    return () => clearTimeout(timer);
-  }, [location, currentCharacterId, setLocation]);
+  // No automatic redirect - let users stay on game page
 
   if (!currentCharacterId) {
     return (
