@@ -1,20 +1,47 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Play, Clock, Star, DollarSign, Users } from "lucide-react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Plus, Play, Clock, Star, DollarSign, Users, Trash2 } from "lucide-react";
 import { useLocation } from "wouter";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import CharacterCreationModal from "@/components/game/modals/CharacterCreationModal";
 import type { Character } from "@shared/schema";
 
 export default function MainMenu() {
   const [, setLocation] = useLocation();
   const [showCreationModal, setShowCreationModal] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [characterToDelete, setCharacterToDelete] = useState<Character | null>(null);
+  const { toast } = useToast();
 
   // Fetch all saved characters from the API
   const { data: savedCharacters = [] } = useQuery<Character[]>({
     queryKey: ['/api/characters'],
+  });
+
+  // Delete character mutation
+  const deleteCharacterMutation = useMutation({
+    mutationFn: (characterId: number) => apiRequest('DELETE', `/api/characters/${characterId}`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/characters'] });
+      toast({
+        title: "Life Deleted",
+        description: "Your character has been successfully removed.",
+      });
+      setDeleteDialogOpen(false);
+      setCharacterToDelete(null);
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to delete the character. Please try again.",
+        variant: "destructive",
+      });
+    },
   });
 
   const handleCreateNewLife = () => {
@@ -30,6 +57,17 @@ export default function MainMenu() {
 
   const handleContinueLife = (characterId: number) => {
     setLocation(`/game?character=${characterId}`);
+  };
+
+  const handleDeleteLife = (character: Character) => {
+    setCharacterToDelete(character);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (characterToDelete) {
+      deleteCharacterMutation.mutate(characterToDelete.id);
+    }
   };
 
 
@@ -114,23 +152,36 @@ export default function MainMenu() {
                       </div>
                     )}
 
-                    {(character.youtubeFollowers > 0 || character.tiktokFollowers > 0) && (
+                    {((character.youtubeFollowers || 0) > 0 || (character.tiktokFollowers || 0) > 0) && (
                       <div className="flex items-center space-x-2 text-sm">
                         <Users className="w-4 h-4 text-blue-500" />
                         <span>
-                          {character.youtubeFollowers > 0 && `${character.youtubeFollowers.toLocaleString()} YT`}
-                          {character.youtubeFollowers > 0 && character.tiktokFollowers > 0 && " • "}
-                          {character.tiktokFollowers > 0 && `${character.tiktokFollowers.toLocaleString()} TT`}
+                          {(character.youtubeFollowers || 0) > 0 && `${(character.youtubeFollowers || 0).toLocaleString()} YT`}
+                          {(character.youtubeFollowers || 0) > 0 && (character.tiktokFollowers || 0) > 0 && " • "}
+                          {(character.tiktokFollowers || 0) > 0 && `${(character.tiktokFollowers || 0).toLocaleString()} TT`}
                         </span>
                       </div>
                     )}
 
-                    <Button 
-                      className="w-full mt-3" 
-                      onClick={() => handleContinueLife(character.id)}
-                    >
-                      Continue Life
-                    </Button>
+                    <div className="flex gap-2 mt-3">
+                      <Button 
+                        className="flex-1" 
+                        onClick={() => handleContinueLife(character.id)}
+                      >
+                        Continue Life
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="icon"
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteLife(character);
+                        }}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </CardContent>
                 </Card>
               ))}
@@ -144,6 +195,28 @@ export default function MainMenu() {
           onClose={() => setShowCreationModal(false)}
           onCharacterCreated={handleCharacterCreated}
         />
+
+        {/* Delete Confirmation Dialog */}
+        <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete Life</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to delete "{characterToDelete?.name}"? This action cannot be undone and all progress will be lost forever.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction 
+                onClick={confirmDelete}
+                className="bg-red-600 hover:bg-red-700"
+                disabled={deleteCharacterMutation.isPending}
+              >
+                {deleteCharacterMutation.isPending ? "Deleting..." : "Delete Forever"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   );

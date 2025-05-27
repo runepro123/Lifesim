@@ -54,6 +54,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.delete("/api/characters/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const success = await storage.deleteCharacter(id);
+      
+      if (!success) {
+        return res.status(404).json({ error: "Character not found" });
+      }
+      
+      res.json({ success: true, message: "Character deleted successfully" });
+    } catch (error: any) {
+      res.status(400).json({ error: error.message });
+    }
+  });
+
   app.post("/api/characters/:id/age-up", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
