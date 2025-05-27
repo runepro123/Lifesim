@@ -236,6 +236,7 @@ export default function MainMenu() {
           isOpen={showCreationModal}
           onClose={() => setShowCreationModal(false)}
           onCharacterCreated={handleCharacterCreated}
+          saveCode={currentSaveCode}
         />
 
         {/* Save Code Authentication Modal */}

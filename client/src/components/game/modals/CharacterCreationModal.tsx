@@ -14,6 +14,7 @@ interface CharacterCreationModalProps {
   isOpen: boolean;
   onClose: () => void;
   onCharacterCreated: (characterId: number) => void;
+  saveCode: string | null;
 }
 
 interface CharacterStats {
@@ -23,7 +24,7 @@ interface CharacterStats {
   looks: number;
 }
 
-export default function CharacterCreationModal({ isOpen, onClose, onCharacterCreated }: CharacterCreationModalProps) {
+export default function CharacterCreationModal({ isOpen, onClose, onCharacterCreated, saveCode }: CharacterCreationModalProps) {
   const [name, setName] = useState("");
   const [gender, setGender] = useState<"male" | "female" | "">("");
   const [country, setCountry] = useState("");
@@ -40,6 +41,12 @@ export default function CharacterCreationModal({ isOpen, onClose, onCharacterCre
     onSuccess: async (response) => {
       const character = await response.json();
       console.log('Character created with ID:', character.id);
+      // Invalidate the characters cache for the current save code
+      if (saveCode) {
+        import('@/lib/queryClient').then(({ queryClient }) => {
+          queryClient.invalidateQueries({ queryKey: ['/api/save-codes', saveCode, 'characters'] });
+        });
+      }
       onCharacterCreated(character.id);
       resetForm();
     },
@@ -62,34 +69,43 @@ export default function CharacterCreationModal({ isOpen, onClose, onCharacterCre
     });
   };
 
-  const handleStartLife = () => {
-    if (!name || !gender || !country || !talent) return;
+  const handleStartLife = async () => {
+    if (!name || !gender || !country || !talent || !saveCode) return;
 
-    const character: InsertCharacter = {
-      name,
-      gender,
-      country,
-      talent,
-      age: 0,
-      bankBalance: Math.floor(Math.random() * 5000) + 1000, // Random starting money
-      happiness: stats.happiness,
-      health: stats.health,
-      smarts: stats.smarts,
-      looks: stats.looks,
-      fame: talent === "famous" ? 10 : 0, // Famous talent starts with some fame
-      currentJob: null,
-      jobReputation: 0,
-      salary: 0,
-      workExperience: 0,
-      youtubeFollowers: 0,
-      tiktokFollowers: 0,
-      isAlive: true,
-      relationships: {},
-      assets: {},
-      lifeEvents: [],
-    };
+    // First, get the save code ID from the database
+    try {
+      const saveCodeResponse = await apiRequest('GET', `/api/save-codes/${saveCode}`);
+      const saveCodeData = await saveCodeResponse.json();
+      
+      const character: InsertCharacter = {
+        name,
+        gender,
+        country,
+        talent,
+        age: 0,
+        saveCodeId: saveCodeData.id,  // Link to the save code
+        bankBalance: Math.floor(Math.random() * 5000) + 1000, // Random starting money
+        happiness: stats.happiness,
+        health: stats.health,
+        smarts: stats.smarts,
+        looks: stats.looks,
+        fame: talent === "famous" ? 10 : 0, // Famous talent starts with some fame
+        currentJob: null,
+        jobReputation: 0,
+        salary: 0,
+        workExperience: 0,
+        youtubeFollowers: 0,
+        tiktokFollowers: 0,
+        isAlive: true,
+        relationships: {},
+        assets: {},
+        lifeEvents: [],
+      };
 
-    createCharacterMutation.mutate(character);
+      createCharacterMutation.mutate(character);
+    } catch (error) {
+      console.error('Error linking character to save code:', error);
+    }
   };
 
   const countries = [
