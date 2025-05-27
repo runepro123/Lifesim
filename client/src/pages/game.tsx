@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useLocation } from "wouter";
+import { useLocation, useRoute } from "wouter";
 import GameHeader from "@/components/game/GameHeader";
 import StatsDisplay from "@/components/game/StatsDisplay";
 import LifeEvents from "@/components/game/LifeEvents";
@@ -16,18 +16,21 @@ import { Plus } from "lucide-react";
 import type { Character } from "@shared/schema";
 
 export default function Game() {
-  const [location] = useLocation();
+  const [location, setLocation] = useLocation();
   const [currentCharacterId, setCurrentCharacterId] = useState<number | null>(null);
+  const [activeModal, setActiveModal] = useState<string | null>(null);
 
   // Extract character ID from URL parameters
   useEffect(() => {
     const urlParams = new URLSearchParams(location.split('?')[1] || '');
     const characterParam = urlParams.get('character');
     if (characterParam) {
-      setCurrentCharacterId(parseInt(characterParam));
+      const charId = parseInt(characterParam);
+      if (!isNaN(charId)) {
+        setCurrentCharacterId(charId);
+      }
     }
   }, [location]);
-  const [activeModal, setActiveModal] = useState<string | null>(null);
 
   const { data: character, isLoading, refetch } = useQuery<Character>({
     queryKey: [`/api/characters/${currentCharacterId}`],
@@ -56,28 +59,15 @@ export default function Game() {
     closeModal();
   };
 
+  // Redirect to main menu if no character ID is provided
+  useEffect(() => {
+    if (location === '/game' && !currentCharacterId) {
+      setLocation('/');
+    }
+  }, [location, currentCharacterId, setLocation]);
+
   if (!currentCharacterId) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center p-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">Welcome to LifeSim</h1>
-          <p className="text-gray-600 mb-8">Create a new character to start your life simulation journey!</p>
-          <Button 
-            onClick={() => showModal('characterCreation')}
-            className="bg-blue-500 hover:bg-blue-600 text-white px-8 py-3 rounded-lg text-lg font-medium"
-          >
-            <Plus className="w-5 h-5 mr-2" />
-            Start New Life
-          </Button>
-        </div>
-        
-        <CharacterCreationModal 
-          isOpen={activeModal === 'characterCreation'} 
-          onClose={closeModal}
-          onCharacterCreated={handleCharacterCreated}
-        />
-      </div>
-    );
+    return null; // Will redirect via useEffect
   }
 
   if (isLoading || !character) {
