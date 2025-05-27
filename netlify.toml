@@ -1,6 +1,6 @@
 [build]
-  publish = "dist"
-  command = "npm run build && npx esbuild server/**/*.ts shared/**/*.ts --platform=node --packages=external --bundle --format=esm --outdir=dist --allow-overwrite"
+  publish = "dist/public"
+  command = "npm run build"
 
 [build.environment]
   NODE_VERSION = "20"
