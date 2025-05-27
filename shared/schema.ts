@@ -8,6 +8,7 @@ export const characters = pgTable("characters", {
   age: integer("age").notNull().default(0),
   gender: text("gender").notNull(),
   country: text("country").notNull(),
+  talent: text("talent").notNull().default("normal"), // normal, famous
   bankBalance: integer("bank_balance").notNull().default(0),
   happiness: integer("happiness").notNull().default(50),
   health: integer("health").notNull().default(50),
@@ -16,6 +17,10 @@ export const characters = pgTable("characters", {
   fame: integer("fame").notNull().default(0),
   currentJob: text("current_job"),
   jobReputation: integer("job_reputation").default(0),
+  salary: integer("salary").default(0),
+  workExperience: integer("work_experience").default(0),
+  youtubeFollowers: integer("youtube_followers").default(0),
+  tiktokFollowers: integer("tiktok_followers").default(0),
   isAlive: boolean("is_alive").notNull().default(true),
   relationships: json("relationships").$type<Record<string, any>>().default({}),
   assets: json("assets").$type<Record<string, any>>().default({}),

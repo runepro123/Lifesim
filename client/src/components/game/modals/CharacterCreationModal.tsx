@@ -27,6 +27,7 @@ export default function CharacterCreationModal({ isOpen, onClose, onCharacterCre
   const [name, setName] = useState("");
   const [gender, setGender] = useState<"male" | "female" | "">("");
   const [country, setCountry] = useState("");
+  const [talent, setTalent] = useState<"normal" | "famous" | "">("");
   const [stats, setStats] = useState<CharacterStats>({
     happiness: 75,
     health: 85,
@@ -47,6 +48,7 @@ export default function CharacterCreationModal({ isOpen, onClose, onCharacterCre
     setName("");
     setGender("");
     setCountry("");
+    setTalent("");
     randomizeStats();
   };
 
@@ -60,21 +62,26 @@ export default function CharacterCreationModal({ isOpen, onClose, onCharacterCre
   };
 
   const handleStartLife = () => {
-    if (!name || !gender || !country) return;
+    if (!name || !gender || !country || !talent) return;
 
     const character: InsertCharacter = {
       name,
       gender,
       country,
+      talent,
       age: 0,
       bankBalance: Math.floor(Math.random() * 5000) + 1000, // Random starting money
       happiness: stats.happiness,
       health: stats.health,
       smarts: stats.smarts,
       looks: stats.looks,
-      fame: 0,
+      fame: talent === "famous" ? 10 : 0, // Famous talent starts with some fame
       currentJob: null,
       jobReputation: 0,
+      salary: 0,
+      workExperience: 0,
+      youtubeFollowers: 0,
+      tiktokFollowers: 0,
       isAlive: true,
       relationships: {},
       assets: {},
@@ -156,6 +163,24 @@ export default function CharacterCreationModal({ isOpen, onClose, onCharacterCre
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+
+            <div>
+              <Label htmlFor="talent" className="text-sm font-medium text-gray-700">Special Talent</Label>
+              <Select value={talent} onValueChange={(value: "normal" | "famous") => setTalent(value)}>
+                <SelectTrigger className="mt-2">
+                  <SelectValue placeholder="Choose your talent" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="normal">Normal - Regular life experience</SelectItem>
+                  <SelectItem value="famous">Famous - Easier path to fame and success</SelectItem>
+                </SelectContent>
+              </Select>
+              {talent && (
+                <div className="mt-2 text-xs text-gray-600">
+                  {talent === "normal" ? "You'll live a normal life with standard opportunities." : "You'll have special advantages in gaining fame and social media followers!"}
+                </div>
+              )}
             </div>
             
             <div>

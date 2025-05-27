@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Star, Heart, User, PawPrint, Bath, Gem, Dice1, VenetianMask, FlameKindling, ShieldCheck, ChevronRight, MoreHorizontal, 
          Book, Camera, Tv, BookOpen, Dumbbell, Music, Library, Target, Brain, Brush, 
          Smartphone, Globe, Gift, Cat, Dog, ArrowRight, Sparkles, Trophy, 
-         Scissors, Palette, Zap, Sun, Waves, Anchor, Paintbrush } from "lucide-react";
+         Scissors, Palette, Zap, Sun, Waves, Anchor, Paintbrush, Play, Video, Users, Clock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import type { Character } from "@shared/schema";
@@ -60,6 +60,14 @@ export default function ActivitiesModal({ isOpen, onClose, character }: Activiti
   };
 
   const favoriteActivities = [
+    { 
+      id: "social-media", 
+      icon: Smartphone, 
+      name: "Social Media", 
+      description: "Build your online presence", 
+      color: "blue",
+      minAge: 13
+    },
     { 
       id: "fame", 
       icon: Star, 
@@ -146,8 +154,168 @@ export default function ActivitiesModal({ isOpen, onClose, character }: Activiti
     },
   ];
 
+  const calculateSocialMediaGrowth = (platform: string, currentFollowers: number, talent: string) => {
+    const baseFame = character.fame || 0;
+    const isNormal = talent === "normal";
+    const isFamous = talent === "famous";
+    
+    let baseGrowth = 0;
+    let fameBonus = 0;
+    let talentMultiplier = 1;
+    
+    if (platform === "youtube") {
+      baseGrowth = Math.floor(Math.random() * 50) + 10; // 10-60 base
+      fameBonus = Math.floor(baseFame * 0.5);
+      talentMultiplier = isFamous ? 3 : isNormal ? 1 : 1.5;
+    } else if (platform === "tiktok") {
+      baseGrowth = Math.floor(Math.random() * 200) + 50; // 50-250 base  
+      fameBonus = Math.floor(baseFame * 0.3);
+      talentMultiplier = isFamous ? 2.5 : isNormal ? 1 : 1.3;
+    }
+    
+    // Growth gets easier with more followers
+    const followerBonus = Math.floor(currentFollowers * 0.001);
+    
+    return Math.floor((baseGrowth + fameBonus + followerBonus) * talentMultiplier);
+  };
+
   const getDetailView = () => {
     switch (currentView) {
+      case "social-media":
+        return (
+          <div className="space-y-4">
+            <div className="space-y-3">
+              <h5 className="font-medium text-gray-700">Content Platforms</h5>
+              
+              {/* YouTube */}
+              <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-red-200">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+                    <Play className="text-red-600 w-5 h-5" />
+                  </div>
+                  <div>
+                    <div className="font-medium text-gray-900">YouTube</div>
+                    <div className="text-sm text-gray-500">
+                      Subscribers: {(character.youtubeFollowers || 0).toLocaleString()}
+                    </div>
+                    <div className="text-xs text-gray-400">Create videos, build audience</div>
+                  </div>
+                </div>
+                <div className="flex space-x-2">
+                  {!character.youtubeFollowers ? (
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      onClick={() => performActivity("Sign up for YouTube", { youtubeFollowers: 0 })}
+                      disabled={character.age < 13 || activityMutation.isPending}
+                    >
+                      Sign Up
+                    </Button>
+                  ) : (
+                    <Button 
+                      size="sm" 
+                      onClick={() => {
+                        const growth = calculateSocialMediaGrowth("youtube", character.youtubeFollowers || 0, character.talent || "normal");
+                        const moneyEarned = Math.floor(growth * 0.5);
+                        performActivity("Create YouTube Video", { 
+                          youtubeFollowers: growth, 
+                          fame: Math.floor(growth * 0.1),
+                          money: moneyEarned,
+                          happiness: 8
+                        });
+                      }}
+                      disabled={character.age < 13 || activityMutation.isPending}
+                    >
+                      Create Video
+                    </Button>
+                  )}
+                </div>
+              </div>
+
+              {/* TikTok */}
+              <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-black">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-black rounded-lg flex items-center justify-center">
+                    <Video className="text-white w-5 h-5" />
+                  </div>
+                  <div>
+                    <div className="font-medium text-gray-900">TikTok</div>
+                    <div className="text-sm text-gray-500">
+                      Followers: {(character.tiktokFollowers || 0).toLocaleString()}
+                    </div>
+                    <div className="text-xs text-gray-400">Make short videos, go viral</div>
+                  </div>
+                </div>
+                <div className="flex space-x-2">
+                  {!character.tiktokFollowers ? (
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      onClick={() => performActivity("Sign up for TikTok", { tiktokFollowers: 0 })}
+                      disabled={character.age < 13 || activityMutation.isPending}
+                    >
+                      Sign Up
+                    </Button>
+                  ) : (
+                    <Button 
+                      size="sm" 
+                      onClick={() => {
+                        const growth = calculateSocialMediaGrowth("tiktok", character.tiktokFollowers || 0, character.talent || "normal");
+                        const moneyEarned = Math.floor(growth * 0.3);
+                        performActivity("Create TikTok", { 
+                          tiktokFollowers: growth, 
+                          fame: Math.floor(growth * 0.05),
+                          money: moneyEarned,
+                          happiness: 5
+                        });
+                      }}
+                      disabled={character.age < 13 || activityMutation.isPending}
+                    >
+                      Post Video
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <h5 className="font-medium text-gray-700">Coming Soon</h5>
+              
+              {/* Twitch */}
+              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200 opacity-60">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                    <Users className="text-purple-600 w-5 h-5" />
+                  </div>
+                  <div>
+                    <div className="font-medium text-gray-900">Twitch</div>
+                    <div className="text-sm text-gray-500">Live streaming platform</div>
+                  </div>
+                </div>
+                <Button size="sm" variant="outline" disabled>
+                  Coming Soon
+                </Button>
+              </div>
+
+              {/* Instagram */}
+              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200 opacity-60">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-pink-100 rounded-lg flex items-center justify-center">
+                    <Camera className="text-pink-600 w-5 h-5" />
+                  </div>
+                  <div>
+                    <div className="font-medium text-gray-900">Instagram</div>
+                    <div className="text-sm text-gray-500">Share photos and videos</div>
+                  </div>
+                </div>
+                <Button size="sm" variant="outline" disabled>
+                  Coming Soon
+                </Button>
+              </div>
+            </div>
+          </div>
+        );
+
       case "fame":
         return (
           <div className="space-y-3">
