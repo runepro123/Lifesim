@@ -1,11 +1,9 @@
 [build]
   publish = "dist"
-  command = "npm run build"
+  command = "npm run build && npx esbuild server/**/*.ts shared/**/*.ts --platform=node --packages=external --bundle --format=esm --outdir=dist --allow-overwrite"
 
 [build.environment]
   NODE_VERSION = "20"
-  # Neon.tech database connection
-  DATABASE_URL = "postgresql://neondb_owner:npg_9nXlEqferJp3@ep-raspy-poetry-a8r13muz-pooler.eastus2.azure.neon.tech/neondb?sslmode=require"
 
 [[redirects]]
   from = "/api/*"
