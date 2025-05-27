@@ -26,7 +26,8 @@ export default function MainMenu() {
   const handleCharacterCreated = (characterId: number) => {
     console.log('Navigating to game with character ID:', characterId);
     setShowCreationModal(false);
-    setLocation(`/game?character=${characterId}`);
+    // Use window.location to ensure query parameters are preserved
+    window.location.href = `/game?character=${characterId}`;
   };
 
   const handleContinueLife = (characterId: number) => {
