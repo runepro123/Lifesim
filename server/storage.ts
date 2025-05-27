@@ -15,6 +15,7 @@ import {
 
 export interface IStorage {
   // Character methods
+  getAllCharacters(): Promise<Character[]>;
   getCharacter(id: number): Promise<Character | undefined>;
   createCharacter(character: InsertCharacter): Promise<Character>;
   updateCharacter(id: number, updates: Partial<Character>): Promise<Character | undefined>;
@@ -122,6 +123,10 @@ export class MemStorage implements IStorage {
       const newEvent: LifeEvent = { ...event, id: this.currentLifeEventId++ };
       this.lifeEvents.set(newEvent.id, newEvent);
     });
+  }
+
+  async getAllCharacters(): Promise<Character[]> {
+    return Array.from(this.characters.values());
   }
 
   async getCharacter(id: number): Promise<Character | undefined> {

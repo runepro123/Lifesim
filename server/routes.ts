@@ -5,6 +5,15 @@ import { insertCharacterSchema } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Character routes
+  app.get("/api/characters", async (req, res) => {
+    try {
+      const characters = await storage.getAllCharacters();
+      res.json(characters);
+    } catch (error: any) {
+      res.status(400).json({ error: error.message });
+    }
+  });
+
   app.post("/api/characters", async (req, res) => {
     try {
       const validatedData = insertCharacterSchema.parse(req.body);

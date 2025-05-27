@@ -12,11 +12,9 @@ export default function MainMenu() {
   const [, setLocation] = useLocation();
   const [showCreationModal, setShowCreationModal] = useState(false);
 
-  // This would normally fetch saved characters from the API
-  // For now we'll simulate some saved lives
+  // Fetch all saved characters from the API
   const { data: savedCharacters = [] } = useQuery<Character[]>({
     queryKey: ['/api/characters'],
-    enabled: false, // Disable for now since we don't have a list endpoint
   });
 
   const handleCreateNewLife = () => {
@@ -34,43 +32,7 @@ export default function MainMenu() {
     setLocation(`/game?character=${characterId}`);
   };
 
-  // Mock data for demonstration - in real app this would come from API
-  const mockSavedLives = [
-    {
-      id: 1,
-      name: "Alex Johnson",
-      age: 25,
-      gender: "male",
-      currentJob: "Software Engineer",
-      bankBalance: 85000,
-      fame: 15,
-      talent: "normal",
-      country: "United States",
-      happiness: 78,
-      health: 82,
-      smarts: 90,
-      looks: 65,
-      youtubeFollowers: 1250,
-      tiktokFollowers: 890
-    },
-    {
-      id: 2,
-      name: "Maria Rodriguez",
-      age: 19,
-      gender: "female",
-      currentJob: "Part-time Cashier",
-      bankBalance: 12000,
-      fame: 45,
-      talent: "famous",
-      country: "Canada",
-      happiness: 85,
-      health: 95,
-      smarts: 70,
-      looks: 88,
-      youtubeFollowers: 25000,
-      tiktokFollowers: 45000
-    }
-  ];
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
@@ -107,19 +69,19 @@ export default function MainMenu() {
             </CardHeader>
             <CardContent className="text-center">
               <p className="text-gray-600 mb-4">Resume your existing character's journey</p>
-              <Button variant="outline" className="w-full" disabled={mockSavedLives.length === 0}>
-                {mockSavedLives.length === 0 ? 'No Saved Lives' : 'View Saved Lives'}
+              <Button variant="outline" className="w-full" disabled={savedCharacters.length === 0}>
+                {savedCharacters.length === 0 ? 'No Saved Lives' : 'View Saved Lives'}
               </Button>
             </CardContent>
           </Card>
         </div>
 
         {/* Saved Lives */}
-        {mockSavedLives.length > 0 && (
+        {savedCharacters.length > 0 && (
           <div>
             <h2 className="text-2xl font-semibold text-gray-900 mb-4">Your Lives</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {mockSavedLives.map((character) => (
+              {savedCharacters.map((character) => (
                 <Card key={character.id} className="hover:shadow-md transition-shadow">
                   <CardHeader className="pb-3">
                     <div className="flex items-center justify-between">

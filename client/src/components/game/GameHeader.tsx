@@ -1,4 +1,7 @@
 import type { Character } from "@shared/schema";
+import { Button } from "@/components/ui/button";
+import { Home } from "lucide-react";
+import { useLocation } from "wouter";
 
 interface GameHeaderProps {
   character: Character;
