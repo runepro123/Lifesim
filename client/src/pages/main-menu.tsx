@@ -34,6 +34,7 @@ export default function MainMenu() {
   // Fetch characters for the current save code
   const { data: savedCharacters = [] } = useQuery<Character[]>({
     queryKey: ['/api/save-codes', currentSaveCode, 'characters'],
+    queryFn: () => fetch(`/api/save-codes/${currentSaveCode}/characters`).then(res => res.json()),
     enabled: !!currentSaveCode,
   });
 
